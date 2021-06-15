@@ -17,7 +17,7 @@ RUN python -m pip install boto3 pandas pysam
 RUN python --version
 
 ENV BWA_VERSION 0.7.17
-ENV SAMTOOLS_VERSION 1.9
+ENV SAMTOOLS_VERSION 1.12
 
 RUN cd /opt/ \
     && wget https://github.com/lh3/bwa/releases/download/v${BWA_VERSION}/bwa-${BWA_VERSION}.tar.bz2 \

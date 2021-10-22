@@ -11,9 +11,9 @@ RUN apt-get update -qq \
   && ln -s /usr/bin/python3.8 python \
   && pip3 --no-cache-dir install --upgrade pip \
   && rm -rf /var/lib/apt/lists/* \
-  && python -m pip install --upgrade awscli
+  && python3 -m pip install --upgrade awscli
 
-RUN python -m pip install boto3 pandas pysam
+RUN python3 -m pip install numpy boto3 pandas pysam
 RUN python --version
 
 ENV BWA_VERSION 0.7.17

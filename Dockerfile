@@ -16,8 +16,14 @@ RUN apt-get update -qq \
 RUN python3 -m pip install numpy boto3 pandas pysam
 RUN python --version
 
+# Install JDK
+ENV JAVA_HOME=/opt/java/openjdk
+COPY --from=eclipse-temurin:17-jre $JAVA_HOME $JAVA_HOME
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
+
 ENV BWA_VERSION 0.7.17
 ENV SAMTOOLS_VERSION 1.12
+ENV PICARD_VERSION 3.1.0
 
 RUN cd /opt/ \
     && wget https://github.com/lh3/bwa/releases/download/v${BWA_VERSION}/bwa-${BWA_VERSION}.tar.bz2 \
@@ -33,4 +39,17 @@ RUN cd /opt/ \
     && cd samtools-${SAMTOOLS_VERSION}/ \
     && make && make install
 
-ENV PATH="/opt/bwa-${BWA_VERSION}/:/opt/samtools-${SAMTOOLS_VERSION}/:${PATH}"
+RUN mkdir /opt/picard-${PICARD_VERSION}/ \
+    && cd /tmp/ \
+    && wget --no-check-certificate https://github.com/broadinstitute/picard/releases/download/${PICARD_VERSION}/picard.jar \
+    && mv picard.jar /opt/picard-${PICARD_VERSION}/ \
+    && ln -s /opt/picard-${PICARD_VERSION} /opt/picard \
+    && ln -s /opt/picard-${PICARD_VERSION} /usr/picard
+
+# Add executable paths to /usr/gitc/
+RUN mkdir /usr/gitc/ \
+    && ln -s /opt/samtools-${SAMTOOLS_VERSION}/samtools /usr/gitc/ \
+    && ln -s /opt/bwa-${BWA_VERSION}/bwa /usr/gitc/ \
+    && ln -s /opt/picard-${PICARD_VERSION}/picard.jar /usr/gitc/
+  
+ENV PATH="/opt/bwa-${BWA_VERSION}/:/opt/samtools-${SAMTOOLS_VERSION}/:${PATH}:/opt/picard-${PICARD_VERSION}/:${PATH}"
